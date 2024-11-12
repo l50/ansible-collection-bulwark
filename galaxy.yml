@@ -7,6 +7,9 @@ authors:
   - Jayson Grace <techvomit.net>
 description: Install and configure defensive security tools and utilities used regularly.
 license_file: "LICENSE"
-tags: [runzero]
+tags:
+  - cloud
+  - runzero
+  - security
 repository: https://github.com/l50/ansible-collection-bulwark
 issues: https://github.com/l50/ansible-collection-bulwark/issues
