@@ -32,7 +32,7 @@
 
 - name: Install required packages for runZero Explorer
   ansible.builtin.include_role:
-    name: package_management
+    name: cowdogmoo.workstation.package_management
   vars:
     package_management_common_install_packages: "{{ runzero_explorer_common_install_packages }}"
     package_management_debian_specific_packages: "{{ runzero_explorer_debian_packages }}"
