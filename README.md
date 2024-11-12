@@ -1,4 +1,4 @@
-# Ansible Collection: L50 Bulwark
+# Ansible Collection: Bulwark
 
 [![License](https://img.shields.io/github/license/l50/ansible-collection-bulwark?label=License&style=flat&color=blue&logo=github)](https://github.com/l50/ansible-collection-bulwark/blob/main/LICENSE)
 [![Pre-Commit](https://github.com/l50/ansible-collection-bulwark/actions/workflows/pre-commit.yaml/badge.svg)](https://github.com/l50/ansible-collection-bulwark/actions/workflows/pre-commit.yaml)

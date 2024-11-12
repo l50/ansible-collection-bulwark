@@ -55,6 +55,6 @@
         "name: (?<depName>[^\\s]+)\\n\\s+src: (?<packageName>[^\\s]+)\\n\\s+version: (?<currentValue>[^\\s]+)"
       ],
       "datasourceTemplate": "git-tags"
-    }
+    },
   ]
 }
