@@ -1,0 +1,208 @@
+---
+name: Molecule Test
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+  push:
+    branches:
+      - main
+  schedule:
+    # Runs every Sunday at 4 AM (see https://crontab.guru)
+    - cron: "0 4 * * 0"
+  workflow_dispatch:
+
+# Cancel any in-progress job when a new workflow is triggered
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+env:
+  ANSIBLE_FORCE_COLOR: "1"
+  COLLECTION_NAMESPACE: l50
+  COLLECTION_NAME: bulwark
+  COLLECTION_PATH: ansible_collections/l50/bulwark
+  REQUIREMENTS_FILE: .hooks/requirements.txt
+  PY_COLORS: "1"
+  PYTHON_VERSION: "3.12.6"
+  RUNZERO_DOWNLOAD_TOKEN: ${{ secrets.RUNZERO_DOWNLOAD_TOKEN }}
+
+jobs:
+  role_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - name: "Role Test - runzero_explorer"
+            path: "roles/runzero_explorer"
+
+    steps:
+      - name: Install Act dependencies
+        if: ${{ env.ACT }}
+        run: |
+          apt-get update && apt-get install rsync sudo -y
+
+      - name: Delete huge unnecessary tools folder
+        if: env.ACT == ''
+        shell: bash
+        run: |
+          echo "Initial disk space:"
+          df -h
+          rm -rf /opt/hostedtoolcache
+          echo "Disk space after cleanup:"
+          df -h
+
+      - name: Checkout git repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          path: ${{ env.COLLECTION_PATH }}
+
+      - name: Set up Python
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: '${{ env.COLLECTION_PATH }}/${{ env.REQUIREMENTS_FILE }}'
+
+      - name: Cache Ansible collections
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: ~/.ansible/collections
+          key: ${{ runner.os }}-ansible-${{ hashFiles('**/requirements.yml') }}
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python3 -m pip install -r "${{ env.COLLECTION_PATH }}/${{ env.REQUIREMENTS_FILE }}"
+
+      - name: Install galaxy dependencies
+        working-directory: ${{ env.COLLECTION_PATH }}
+        shell: bash
+        run: |
+          ansible-galaxy collection install -r requirements.yml
+          ansible-galaxy install -r requirements.yml
+
+      - name: Run molecule test
+        working-directory: ${{ env.COLLECTION_PATH }}/${{ matrix.path }}
+        shell: bash
+        run: |
+          set -ex
+          molecule --version
+          molecule list
+
+          if ! MOLECULE_DEBUG=1 molecule test; then
+            echo "Molecule test failed. Collecting debug information..."
+
+            echo "Docker containers:"
+            docker ps -a
+
+            echo "=== Docker Container Logs ==="
+            while read -r container; do
+              echo "=== Logs from container ${container} ==="
+              docker logs "${container}" 2>&1
+              echo "=== End logs for container ${container} ==="
+            done < <(docker ps -q)
+
+            echo "=== Molecule Logs ==="
+            while IFS= read -r -d '' log; do
+              echo "Contents of ${log}:"
+              cat "${log}"
+              echo "=== End of ${log} ==="
+            done < <(find . -name '*.log' -print0)
+
+            exit 1
+          fi
+
+  playbook_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - name: "Playbook Test - runzero_explorer"
+            path: "playbooks/runzero_explorer"
+
+    steps:
+      - name: Install Act dependencies
+        if: ${{ env.ACT }}
+        run: |
+          apt-get update && apt-get install rsync sudo -y
+
+      - name: Delete huge unnecessary tools folder
+        if: env.ACT == ''
+        shell: bash
+        run: |
+          echo "Initial disk space:"
+          df -h
+          rm -rf /opt/hostedtoolcache
+          echo "Disk space after cleanup:"
+          df -h
+
+      - name: Checkout git repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          path: ${{ env.COLLECTION_PATH }}
+
+      - name: Set up Python
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: '${{ env.COLLECTION_PATH }}/${{ env.REQUIREMENTS_FILE }}'
+
+      - name: Cache Ansible collections
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: ~/.ansible/collections
+          key: ${{ runner.os }}-ansible-${{ hashFiles('**/requirements.yml') }}
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python3 -m pip install -r "${{ env.COLLECTION_PATH }}/${{ env.REQUIREMENTS_FILE }}"
+
+      - name: Install galaxy dependencies
+        working-directory: ${{ env.COLLECTION_PATH }}
+        shell: bash
+        run: |
+          ansible-galaxy collection install -r requirements.yml
+          ansible-galaxy install -r requirements.yml
+
+      - name: Run molecule test
+        working-directory: ${{ env.COLLECTION_PATH }}/${{ matrix.path }}
+        shell: bash
+        run: |
+          set -ex
+          molecule --version
+          molecule list
+
+          if ! MOLECULE_DEBUG=1 molecule test; then
+            echo "Molecule test failed. Collecting debug information..."
+
+            echo "Docker containers:"
+            docker ps -a
+
+            echo "=== Docker Container Logs ==="
+            while read -r container; do
+              echo "=== Logs from container ${container} ==="
+              docker logs "${container}" 2>&1
+              echo "=== End logs for container ${container} ==="
+            done < <(docker ps -q)
+
+            echo "=== Molecule Logs ==="
+            while IFS= read -r -d '' log; do
+              echo "Contents of ${log}:"
+              cat "${log}"
+              echo "=== End of ${log} ==="
+            done < <(find . -name '*.log' -print0)
+
+            exit 1
+          fi
