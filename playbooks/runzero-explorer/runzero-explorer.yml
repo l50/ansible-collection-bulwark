@@ -1,0 +1,6 @@
+---
+- name: RunZero Explorer
+  hosts: all
+  roles:
+    - name: Setup and run RunZero Explorer
+      role: l50.bulwark.runzero_explorer
