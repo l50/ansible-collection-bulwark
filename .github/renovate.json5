@@ -1,0 +1,67 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    "docker:enableMajor",
+    ":disableRateLimiting",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":enablePreCommit",
+    ":automergeDigest",
+    ":automergeBranch",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "dependencyDashboardTitle": "Renovate Dashboard 🤖",
+  "suppressNotifications": ["prIgnoreNotification"],
+  "rebaseWhen": "conflicted",
+  "commitBodyTable": true,
+  "pre-commit": {
+    "enabled": true
+  },
+  "labels": [
+    "renovate/{{datasource}}",
+    "type/{{updateType}}"
+  ],
+  "packageRules": [
+    {
+      "description": "Auto merge Galaxy dependencies",
+      "matchDatasources": ["galaxy"],
+      "automerge": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["digest"]
+    },
+    {
+      "description": "Auto-merge GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["github-tags"],
+      "automerge": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "description": "Group Ansible Galaxy dependencies",
+      "matchManagers": ["ansible-galaxy"],
+      "groupName": "ansible-dependencies"
+    }
+  ],
+  "ansible": {
+    "fileMatch": [
+      "^requirements\\.yml$",
+      "^roles/[^/]+/meta/main\\.yml$",
+      "^galaxy\\.yml$"
+    ]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^roles/runzero_explorer/defaults/main\\.yml$"],
+      "matchStrings": [
+        "runzero_explorer_version:\\s*['\"]?(?<currentValue>[0-9.]+)['\"]?"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "runzero/runzero",
+      "versioningTemplate": "semver",
+      "labels": ["role/runzero_explorer"]
+    }
+  ]
+}
