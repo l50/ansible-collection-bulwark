@@ -50,13 +50,11 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^roles/runzero_explorer/defaults/main\\.yml$"],
+      "fileMatch": ["(^|/)requirements\\.ya?ml$", "(^|/)galaxy\\.ya?ml$"],
       "matchStrings": [
-        "runzero_explorer_version:\\s*['\"]?(?<currentValue>[0-9.]+)['\"]?"
+        "name: (?<depName>[^\\s]+)\\n\\s+src: (?<lookupName>[^\\s]+)\\n\\s+version: (?<currentValue>[^\\s]+)"
       ],
-      "datasourceTemplate": "github-releases",
-      "depNameTemplate": "runzero/runzero",
-      "versioningTemplate": "semver",
-    }
+      "datasourceTemplate": "git-tags"
+    },
   ]
 }
