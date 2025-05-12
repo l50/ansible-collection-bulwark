@@ -1,6 +1,9 @@
 ---
 - name: RunZero Explorer
   hosts: all
+  gather_facts: true
   roles:
     - name: Setup and run RunZero Explorer
       role: l50.bulwark.runzero_explorer
+      # For debugging
+      # role: ../../roles/runzero_explorer
