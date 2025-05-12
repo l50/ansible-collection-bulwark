@@ -1,9 +1,8 @@
 ---
 - name: Converge
   hosts: all
+  gather_facts: true
   tasks:
-    - name: Include default variables
-      ansible.builtin.include_vars:
-        file: "../../defaults/main.yml"
-  roles:
-    - role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+    - name: Include role under test
+      ansible.builtin.include_role:
+        name: l50.bulwark.runzero_explorer
