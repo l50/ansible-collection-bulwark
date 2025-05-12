@@ -8,7 +8,9 @@ roles/**/*
 docs/releases.md
 LICENSE
 requirements.yml
+galaxy-deploy.yml
 .github/images/*
+.github/renovate.json5
 .github/renovate-bot.json5
 .github/labeler.yaml
 .github/labels.yaml
