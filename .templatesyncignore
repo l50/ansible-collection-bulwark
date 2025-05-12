@@ -1,0 +1,16 @@
+README.md
+galaxy.yml
+ansible.cfg
+changelogs/*
+playbooks/**/*
+plugins/**/*
+roles/**/*
+docs/releases.md
+LICENSE
+requirements.yml
+.github/images/*
+.github/renovate-bot.json5
+.github/labeler.yaml
+.github/labels.yaml
+.github/workflows/release.yaml
+.github/workflows/molecule.yaml
