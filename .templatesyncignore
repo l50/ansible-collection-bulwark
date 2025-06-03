@@ -7,10 +7,10 @@ plugins/**/*
 roles/**/*
 docs/releases.md
 LICENSE
-requirements.yml
+meta/runtime.yml
 galaxy-deploy.yml
+requirements.yml
 .github/images/*
-.github/renovate.json5
 .github/renovate-bot.json5
 .github/labeler.yaml
 .github/labels.yaml
