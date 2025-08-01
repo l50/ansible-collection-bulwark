@@ -19,14 +19,14 @@
 
 - name: Generate a unique RUNZERO_AGENT_HOST_ID
   ansible.builtin.set_fact:
-    runzero_agent_host_id: "{{ lookup('ansible.builtin.password', length=32, format='hex') }}"
-  when: runzero_agent_host_id is not defined
+    runzero_explorer_agent_host_id: "{{ lookup('ansible.builtin.password', length=32, format='hex') }}"
+  when: runzero_explorer_agent_host_id is not defined
 
 - name: Set RUNZERO_AGENT_HOST_ID environment variable
   become: true
   ansible.builtin.lineinfile:
     path: /etc/environment
-    line: 'RUNZERO_AGENT_HOST_ID={{ runzero_agent_host_id }}'
+    line: 'RUNZERO_AGENT_HOST_ID={{ runzero_explorer_agent_host_id }}'
     create: true
     mode: '0644'
 
@@ -65,7 +65,7 @@
     paths: "{{ runzero_explorer_path | dirname }}"
     patterns: "runzero-agent-*"
     get_checksum: true
-  register: runzero_agent_files
+  register: runzero_explorer_agent_files
 
 - name: Get hash of existing runzero-explorer file
   ansible.builtin.stat:
@@ -77,11 +77,11 @@
 - name: Rename the most recent runzero-agent file to the default destination
   become: true
   ansible.builtin.command:
-    cmd: "mv {{ (runzero_agent_files.files | sort(attribute='mtime') | last).path }} {{ runzero_explorer_path }}"
+    cmd: "mv {{ (runzero_explorer_agent_files.files | sort(attribute='mtime') | last).path }} {{ runzero_explorer_path }}"
   when:
-    - runzero_agent_files.matched > 0
+    - runzero_explorer_agent_files.matched > 0
     - runzero_explorer_stat.stat.exists
-    - "(runzero_agent_files.files | sort(attribute='mtime') | last).checksum != runzero_explorer_checksum.stat.checksum"
+    - "(runzero_explorer_agent_files.files | sort(attribute='mtime') | last).checksum != runzero_explorer_checksum.stat.checksum"
   changed_when: false
 
 - name: Execute runzero-explorer
