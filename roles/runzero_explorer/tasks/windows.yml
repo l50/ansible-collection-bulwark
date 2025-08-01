@@ -22,7 +22,7 @@
     paths: "{{ runzero_explorer_path | dirname }}"
     patterns: "runzero-agent-*"
     get_checksum: yes
-  register: runzero_agent_files
+  register: runzero_explorer_agent_files
 
 - name: Get hash of existing runzero-explorer file (if applicable)
   ansible.windows.win_stat:
@@ -33,11 +33,11 @@
 
 - name: Rename the most recent runzero-agent file to the default destination (if applicable)
   ansible.windows.win_command:
-    cmd: "Rename-Item -Path '{{ (runzero_agent_files.files | sort(attribute='mtime') | last).path }}' -NewName '{{ runzero_explorer_path | basename }}'"
+    cmd: "Rename-Item -Path '{{ (runzero_explorer_agent_files.files | sort(attribute='mtime') | last).path }}' -NewName '{{ runzero_explorer_path | basename }}'"
   when:
-    - runzero_agent_files.matched > 0
+    - runzero_explorer_agent_files.matched > 0
     - runzero_explorer_stat.stat.exists
-    - "(runzero_agent_files.files | sort(attribute='mtime') | last).checksum != runzero_explorer_checksum.stat.checksum"
+    - "(runzero_explorer_agent_files.files | sort(attribute='mtime') | last).checksum != runzero_explorer_checksum.stat.checksum"
   changed_when: true
 
 - name: Execute runzero-explorer
