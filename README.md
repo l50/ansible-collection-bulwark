@@ -9,6 +9,17 @@ This Ansible collection provides setup and configuration for defensive security
 tools, covering utilities and applications for threat detection, incident
 response, and system hardening.
 
+## Architecture Diagram
+
+```mermaid
+graph TD
+    Collection[Ansible Collection]
+    Collection --> Roles[⚙️ Roles]
+    Roles --> R0[runzero_explorer 🧪]
+    Collection --> Playbooks[📚 Playbooks]
+    Playbooks --> PB0[runzero_explorer 🧪]
+```
+
 ## Requirements
 
 - Ansible 2.15 or higher
@@ -19,6 +30,14 @@ Install the latest version of the Bulwark collection:
 
 ```bash
 ansible-galaxy collection install git+https://github.com/l50/ansible-collection-bulwark.git,main
+```
+
+Alternatively, you can build the collection locally and install it from
+the generated tarball:
+
+```bash
+ansible-galaxy collection build --force && \
+  ansible-galaxy collection install l50-bulwark-*.tar.gz -p ~/.ansible/collections --force --pre
 ```
 
 ## Roles
@@ -33,12 +52,29 @@ Include the roles from this collection in your playbook. Here's an example:
 
 ```yaml
 ---
-- name: Provision container
+- name: Provision system
   hosts: localhost
   roles:
     - l50.bulwark.runzero_explorer
     ...
 ```
+
+## Development
+
+### Setting Up Development Environment
+
+To set up the development environment and install all required dependencies,
+including docsible for automatic documentation generation:
+
+```bash
+python3 -m pip install -r .hooks/requirements.txt
+```
+
+### Documentation Generation
+
+This project uses [docsible](https://github.com/docsible/docsible) to automatically
+generate documentation for Ansible roles. Documentation is generated automatically
+via pre-commit hooks when changes are made to role files.
 
 ## License
 
