@@ -9,4 +9,4 @@ collections:
   - name: community.general
     version: 11.2.1
   - name: cowdogmoo.workstation
-    version: 2.0.7
+    version: 2.0.8
