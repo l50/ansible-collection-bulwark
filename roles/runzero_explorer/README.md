@@ -14,15 +14,15 @@ Install the runZero explorer
 ### Default Variables (main.yml)
 
 | Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `runzero_explorer_log_debug` | str | `false` | No description |
-| `runzero_explorer_systemd_enabled` | str | `false` | No description |
-| `runzero_explorer_version_id` | str | `1a430dd4` | No description |
+| ---------- | ------ | --------- | ------------- |
+| `runzero_explorer_log_debug` | str | <code>false</code> | No description |
+| `runzero_explorer_systemd_enabled` | str | <code>false</code> | No description |
+| `runzero_explorer_version_id` | str | <code>1a430dd4</code> | No description |
 
 ### Role Variables (main.yml)
 
 | Variable | Type | Value | Description |
-|----------|------|-------|-------------|
+| ---------- | ------ | ------- | ------------- |
 | `runzero_explorer_chromium_package` | str | `{{ 'chromium-browser' if ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '>=') else 'chromium' }}` | No description |
 | `runzero_explorer_common_install_packages` | list | `[]` | No description |
 | `runzero_explorer_debian_packages` | list | `[]` | No description |
