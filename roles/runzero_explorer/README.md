@@ -14,7 +14,7 @@ Install the runZero explorer
 ### Default Variables (main.yml)
 
 | Variable | Type | Default | Description |
-| ---------- | ------ | --------- | ------------- |
+| -------- | ---- | ------- | ----------- |
 | `runzero_explorer_log_debug` | str | <code>false</code> | No description |
 | `runzero_explorer_systemd_enabled` | str | <code>false</code> | No description |
 | `runzero_explorer_version_id` | str | <code>1a430dd4</code> | No description |
@@ -22,7 +22,7 @@ Install the runZero explorer
 ### Role Variables (main.yml)
 
 | Variable | Type | Value | Description |
-| ---------- | ------ | ------- | ------------- |
+| -------- | ---- | ----- | ----------- |
 | `runzero_explorer_chromium_package` | str | `{{ 'chromium-browser' if ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '>=') else 'chromium' }}` | No description |
 | `runzero_explorer_common_install_packages` | list | `[]` | No description |
 | `runzero_explorer_debian_packages` | list | `[]` | No description |
@@ -40,6 +40,7 @@ Install the runZero explorer
 
 ### main.yml
 
+
 - **Set runzero_explorer_path** (ansible.builtin.set_fact)
 - **Set architecture mapping for runzero-explorer** (ansible.builtin.set_fact)
 - **Determine runzero-explorer binary architecture** (ansible.builtin.set_fact) - Conditional
@@ -52,10 +53,12 @@ Install the runZero explorer
 
 ### systemd.yml
 
+
 - **Create runZero Explorer systemd service file** (ansible.builtin.copy)
 - **Enable and start runZero Explorer service** (ansible.builtin.systemd)
 
 ### unix.yml
+
 
 - **Set runzero-explorer download URL for Unix-like systems** (ansible.builtin.set_fact) - Conditional
 - **Set runzero-explorer download URL for Darwin systems** (ansible.builtin.set_fact) - Conditional
@@ -72,6 +75,7 @@ Install the runZero explorer
 - **Execute runzero-explorer** (ansible.builtin.command)
 
 ### windows.yml
+
 
 - **Set runzero-explorer download URL for Windows** (ansible.builtin.set_fact) - Conditional
 - **Check if runzero-explorer already exists** (ansible.windows.win_stat)
@@ -96,6 +100,7 @@ Install the runZero explorer
 - **License**: MIT
 
 ## Platforms
+
 
 - Ubuntu: all
 - Debian: all
