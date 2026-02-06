@@ -3,11 +3,13 @@
   ansible.builtin.set_fact:
     runzero_explorer_url: "{{ runzero_explorer_url }}/{{ runzero_explorer_unique_token }}/{{ runzero_explorer_version_id }}/runzero-explorer-linux-{{ runzero_explorer_arch }}.bin"
   when: ansible_os_family in ['Debian', 'RedHat']
+  no_log: true
 
 - name: Set runzero-explorer download URL for Darwin systems
   ansible.builtin.set_fact:
     runzero_explorer_url: "{{ runzero_explorer_url }}/{{ runzero_explorer_unique_token }}/{{ runzero_explorer_version_id }}/runzero-explorer-darwin-{{ runzero_explorer_arch }}.bin"
   when: ansible_os_family == 'Darwin'
+  no_log: true
 
 - name: Set RUNZERO_AGENT_LOG_DEBUG environment variable
   become: true
@@ -59,6 +61,7 @@
   when:
     - runzero_explorer_unique_token is defined
     - not runzero_explorer_stat.stat.exists
+  no_log: true
 
 - name: Find runzero-agent files
   ansible.builtin.find:
@@ -78,14 +81,14 @@
   become: true
   ansible.builtin.command:
     cmd: "mv {{ (runzero_explorer_agent_files.files | sort(attribute='mtime') | last).path }} {{ runzero_explorer_path }}"
+  changed_when: true
   when:
     - runzero_explorer_agent_files.matched > 0
     - runzero_explorer_stat.stat.exists
     - "(runzero_explorer_agent_files.files | sort(attribute='mtime') | last).checksum != runzero_explorer_checksum.stat.checksum"
-  changed_when: false
 
 - name: Execute runzero-explorer
   become: true
   ansible.builtin.command:
     cmd: "{{ runzero_explorer_path }}"
-  changed_when: false
+  changed_when: true

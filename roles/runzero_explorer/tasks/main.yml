@@ -22,6 +22,7 @@
 - name: Set the unique token
   ansible.builtin.set_fact:
     runzero_explorer_unique_token: "{{ lookup('env', 'RUNZERO_DOWNLOAD_TOKEN') }}"
+  no_log: true
 
 - name: Create the directory for the runzero-explorer binary
   ansible.builtin.file:

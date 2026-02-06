@@ -21,6 +21,6 @@
 - name: Enable and start runZero Explorer service
   ansible.builtin.systemd:
     name: runzero-explorer
-    enabled: yes
+    enabled: true
     state: started
   become: true
