@@ -15,6 +15,7 @@ driver:
 platforms:
   - name: ubuntu-runzero-explorer
     image: geerlingguy/docker-ubuntu2404-ansible:latest
+    pre_build_image: true
     # Setting the command to this is necessary for systemd containers
     command: ""
     volumes:

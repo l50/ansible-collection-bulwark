@@ -3,8 +3,8 @@
   hosts: all
   gather_facts: true
   vars_files:
-    - ../../defaults/main.yml
-    - ../../vars/main.yml
+    - ../../../../roles/runzero_explorer/defaults/main.yml
+    - ../../../../roles/runzero_explorer/vars/main.yml
   tasks:
     - name: Set runzero_explorer_path for Non-Windows
       ansible.builtin.set_fact:
