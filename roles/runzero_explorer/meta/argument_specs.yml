@@ -1,0 +1,20 @@
+---
+argument_specs:
+  main:
+    short_description: Configure the runZero Explorer role.
+    options:
+      runzero_explorer_log_debug:
+        type: str
+        required: false
+        default: "false"
+        description: Enable debug logging for the runZero Explorer agent.
+      runzero_explorer_systemd_enabled:
+        type: str
+        required: false
+        default: "false"
+        description: Enable and start the runZero Explorer systemd service.
+      runzero_explorer_version_id:
+        type: str
+        required: false
+        default: "1a430dd4"
+        description: Version identifier used for the runZero Explorer download.
