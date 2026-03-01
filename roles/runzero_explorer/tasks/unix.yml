@@ -92,3 +92,4 @@
   ansible.builtin.command:
     cmd: "{{ runzero_explorer_path }}"
   changed_when: true
+  when: runzero_explorer_agent_files.matched == 0
