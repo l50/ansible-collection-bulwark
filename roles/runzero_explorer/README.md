@@ -72,7 +72,7 @@ Install the runZero explorer
 - **Find runzero-agent files** (ansible.builtin.find)
 - **Get hash of existing runzero-explorer file** (ansible.builtin.stat) - Conditional
 - **Rename the most recent runzero-agent file to the default destination** (ansible.builtin.command) - Conditional
-- **Execute runzero-explorer** (ansible.builtin.command)
+- **Execute runzero-explorer** (ansible.builtin.command) - Conditional
 
 ### windows.yml
 
@@ -83,7 +83,7 @@ Install the runZero explorer
 - **Find runzero-agent files (if applicable)** (ansible.windows.win_find)
 - **Get hash of existing runzero-explorer file (if applicable)** (ansible.windows.win_stat) - Conditional
 - **Rename the most recent runzero-agent file to the default destination (if applicable)** (ansible.windows.win_command) - Conditional
-- **Execute runzero-explorer** (ansible.windows.win_command)
+- **Execute runzero-explorer** (ansible.windows.win_command) - Conditional
 
 ## Example Playbook
 
