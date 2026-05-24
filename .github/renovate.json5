@@ -41,6 +41,19 @@
       "automerge": true,
       "automergeType": "pr",
       "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ]
+    },
+    {
+      "description": "Auto-merge custom regex managers (task, python, go versions)",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "matchUpdateTypes": [
         "minor",
         "patch"
       ]
