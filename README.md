@@ -42,6 +42,14 @@ ansible-galaxy collection build --force && \
 
 ## Roles
 
+<!-- ROLES TABLE START -->
+
+| Role | Description |
+| ---- | ----------- |
+| [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
+
+<!-- ROLES TABLE END -->
+
 ### runZero Explorer
 
 Installs and configures [runZero Explorer](https://console.runzero.com/deploy/download/explorers).
