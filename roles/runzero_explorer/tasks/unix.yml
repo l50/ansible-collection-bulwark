@@ -58,10 +58,15 @@
     url: "{{ runzero_explorer_url }}"
     dest: "{{ runzero_explorer_path }}"
     mode: '0755'
+    timeout: "{{ runzero_explorer_download_timeout | int }}"
+  register: runzero_explorer_download
+  retries: "{{ runzero_explorer_download_retries | int }}"
+  delay: "{{ runzero_explorer_download_delay | int }}"
+  until: runzero_explorer_download is succeeded
   when:
     - runzero_explorer_unique_token is defined
     - not runzero_explorer_stat.stat.exists
-  no_log: true
+  no_log: "{{ not (runzero_explorer_debug_download | bool) }}"
 
 - name: Find runzero-agent files
   ansible.builtin.find:
