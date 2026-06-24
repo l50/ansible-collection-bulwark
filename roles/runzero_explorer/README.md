@@ -18,6 +18,10 @@ Install the runZero explorer
 | `runzero_explorer_log_debug` | str | <code>false</code> | No description |
 | `runzero_explorer_systemd_enabled` | str | <code>false</code> | No description |
 | `runzero_explorer_version_id` | str | <code>1a430dd4</code> | No description |
+| `runzero_explorer_debug_download` | bool | <code>False</code> | No description |
+| `runzero_explorer_download_retries` | int | <code>5</code> | No description |
+| `runzero_explorer_download_delay` | int | <code>10</code> | No description |
+| `runzero_explorer_download_timeout` | int | <code>60</code> | No description |
 
 ### Role Variables (main.yml)
 

@@ -2,3 +2,10 @@
 runzero_explorer_log_debug: "false"
 runzero_explorer_systemd_enabled: "false"
 runzero_explorer_version_id: "1a430dd4"
+# Unmask the download task (no_log) to surface errors when troubleshooting.
+# Leave false so the token-bearing URL is never exposed in logs by default.
+runzero_explorer_debug_download: false
+# Resilience settings for the explorer download against transient network failures.
+runzero_explorer_download_retries: 5
+runzero_explorer_download_delay: 10
+runzero_explorer_download_timeout: 60
