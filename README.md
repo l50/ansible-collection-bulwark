@@ -15,7 +15,8 @@ response, and system hardening.
 graph TD
     Collection[Ansible Collection]
     Collection --> Roles[⚙️ Roles]
-    Roles --> R0[runzero_explorer 🧪]
+    Roles --> R0[dc_audit_sacl]
+    Roles --> R1[runzero_explorer 🧪]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -46,9 +47,17 @@ ansible-galaxy collection build --force && \
 
 | Role | Description |
 | ---- | ----------- |
+| [`dc_audit_sacl`](roles/dc_audit_sacl/README.md) | Configure SACL auditing on Domain Controllers for attack detection |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
 
 <!-- ROLES TABLE END -->
+
+### DC Audit SACL
+
+Configures SACL entries and `auditpol` subcategories on a Windows Domain
+Controller so that DCSync-style replication attempts (and other Directory
+Service Access events) are audited. Windows Server 2019/2022 only; no
+molecule test coverage (needs a real AD forest).
 
 ### runZero Explorer
 
