@@ -16,9 +16,10 @@ graph TD
     Collection[Ansible Collection]
     Collection --> Roles[⚙️ Roles]
     Roles --> R0[alloy]
-    Roles --> R1[dc_audit_sacl]
-    Roles --> R2[runzero_explorer 🧪]
-    Roles --> R3[sysmon]
+    Roles --> R1[aws_ssm_agent]
+    Roles --> R2[dc_audit_sacl]
+    Roles --> R3[runzero_explorer 🧪]
+    Roles --> R4[sysmon]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -50,6 +51,7 @@ ansible-galaxy collection build --force && \
 | Role | Description |
 | ---- | ----------- |
 | [`alloy`](roles/alloy/README.md) | Install and configure Grafana Alloy for Windows hosts |
+| [`aws_ssm_agent`](roles/aws_ssm_agent/README.md) | Install and configure AWS SSM Agent |
 | [`dc_audit_sacl`](roles/dc_audit_sacl/README.md) | Configure SACL auditing on Domain Controllers for attack detection |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
 | [`sysmon`](roles/sysmon/README.md) | Install and configure Sysinternals Sysmon on Windows hosts |
@@ -62,6 +64,13 @@ Installs [Grafana Alloy](https://grafana.com/docs/alloy/latest/) on Windows
 hosts and ships event-log data (System, Application, Security, plus optional
 Sysmon / Directory Service / DNS Server channels) to OTLP endpoints for Vector
 and Loki. Windows-only; no molecule test coverage.
+
+### AWS SSM Agent
+
+Installs and configures the [Amazon SSM Agent](https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-agent.html)
+on Ubuntu/Debian and Windows hosts so instances can be managed via AWS Systems
+Manager (Session Manager, Run Command, Patch Manager). Optionally applies a
+systemd `MemoryMax` cap to protect against SSM OOM eating other workloads.
 
 ### DC Audit SACL
 
