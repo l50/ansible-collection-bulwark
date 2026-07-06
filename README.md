@@ -17,6 +17,7 @@ graph TD
     Collection --> Roles[⚙️ Roles]
     Roles --> R0[dc_audit_sacl]
     Roles --> R1[runzero_explorer 🧪]
+    Roles --> R2[sysmon]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -49,6 +50,7 @@ ansible-galaxy collection build --force && \
 | ---- | ----------- |
 | [`dc_audit_sacl`](roles/dc_audit_sacl/README.md) | Configure SACL auditing on Domain Controllers for attack detection |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
+| [`sysmon`](roles/sysmon/README.md) | Install and configure Sysinternals Sysmon on Windows hosts |
 
 <!-- ROLES TABLE END -->
 
@@ -62,6 +64,12 @@ molecule test coverage (needs a real AD forest).
 ### runZero Explorer
 
 Installs and configures [runZero Explorer](https://console.runzero.com/deploy/download/explorers).
+
+### Sysmon
+
+Installs [Sysinternals Sysmon](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon)
+on Windows hosts with the [SwiftOnSecurity sysmon-config](https://github.com/SwiftOnSecurity/sysmon-config)
+baseline. Windows-only; no Linux/molecule test coverage.
 
 ## Usage
 
