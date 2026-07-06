@@ -16,6 +16,7 @@ graph TD
     Collection[Ansible Collection]
     Collection --> Roles[⚙️ Roles]
     Roles --> R0[runzero_explorer 🧪]
+    Roles --> R1[sysmon]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -47,12 +48,19 @@ ansible-galaxy collection build --force && \
 | Role | Description |
 | ---- | ----------- |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
+| [`sysmon`](roles/sysmon/README.md) | Install and configure Sysinternals Sysmon on Windows hosts |
 
 <!-- ROLES TABLE END -->
 
 ### runZero Explorer
 
 Installs and configures [runZero Explorer](https://console.runzero.com/deploy/download/explorers).
+
+### Sysmon
+
+Installs [Sysinternals Sysmon](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon)
+on Windows hosts with the [SwiftOnSecurity sysmon-config](https://github.com/SwiftOnSecurity/sysmon-config)
+baseline. Windows-only; no Linux/molecule test coverage.
 
 ## Usage
 
