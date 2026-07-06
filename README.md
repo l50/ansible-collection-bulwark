@@ -15,9 +15,10 @@ response, and system hardening.
 graph TD
     Collection[Ansible Collection]
     Collection --> Roles[⚙️ Roles]
-    Roles --> R0[dc_audit_sacl]
-    Roles --> R1[runzero_explorer 🧪]
-    Roles --> R2[sysmon]
+    Roles --> R0[aws_ssm_agent]
+    Roles --> R1[dc_audit_sacl]
+    Roles --> R2[runzero_explorer 🧪]
+    Roles --> R3[sysmon]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -48,11 +49,19 @@ ansible-galaxy collection build --force && \
 
 | Role | Description |
 | ---- | ----------- |
+| [`aws_ssm_agent`](roles/aws_ssm_agent/README.md) | Install and configure AWS SSM Agent |
 | [`dc_audit_sacl`](roles/dc_audit_sacl/README.md) | Configure SACL auditing on Domain Controllers for attack detection |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
 | [`sysmon`](roles/sysmon/README.md) | Install and configure Sysinternals Sysmon on Windows hosts |
 
 <!-- ROLES TABLE END -->
+
+### AWS SSM Agent
+
+Installs and configures the [Amazon SSM Agent](https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-agent.html)
+on Ubuntu/Debian and Windows hosts so instances can be managed via AWS Systems
+Manager (Session Manager, Run Command, Patch Manager). Optionally applies a
+systemd `MemoryMax` cap to protect against SSM OOM eating other workloads.
 
 ### DC Audit SACL
 
