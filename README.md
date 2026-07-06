@@ -15,9 +15,10 @@ response, and system hardening.
 graph TD
     Collection[Ansible Collection]
     Collection --> Roles[⚙️ Roles]
-    Roles --> R0[dc_audit_sacl]
-    Roles --> R1[runzero_explorer 🧪]
-    Roles --> R2[sysmon]
+    Roles --> R0[aws_cloudwatch_agent]
+    Roles --> R1[dc_audit_sacl]
+    Roles --> R2[runzero_explorer 🧪]
+    Roles --> R3[sysmon]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -48,11 +49,19 @@ ansible-galaxy collection build --force && \
 
 | Role | Description |
 | ---- | ----------- |
+| [`aws_cloudwatch_agent`](roles/aws_cloudwatch_agent/README.md) | Install and configure AWS CloudWatch Agent |
 | [`dc_audit_sacl`](roles/dc_audit_sacl/README.md) | Configure SACL auditing on Domain Controllers for attack detection |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
 | [`sysmon`](roles/sysmon/README.md) | Install and configure Sysinternals Sysmon on Windows hosts |
 
 <!-- ROLES TABLE END -->
+
+### AWS CloudWatch Agent
+
+Installs and configures the [Amazon CloudWatch Agent](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Install-CloudWatch-Agent.html)
+on Ubuntu/Debian and Windows hosts. Ships default CPU/disk/memory/netstat/process
+metrics with EC2 instance dimensions; override `aws_cloudwatch_agent_config` to
+tailor collection.
 
 ### DC Audit SACL
 

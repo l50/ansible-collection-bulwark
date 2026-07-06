@@ -1,0 +1,27 @@
+---
+galaxy_info:
+  role_name: aws_cloudwatch_agent
+  namespace: l50
+  author: Jayson Grace
+  description: Install and configure AWS CloudWatch Agent
+  company: l50
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Windows
+      versions:
+        - all
+  galaxy_tags:
+    - aws
+    - cloudwatch
+    - linux
+    - monitoring
+    - windows
+
+dependencies: []
