@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  role_name: alloy
+  namespace: l50
+  author: Jayson Grace
+  description: Install and configure Grafana Alloy for Windows hosts
+  company: l50
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Windows
+      versions:
+        - all
+  galaxy_tags:
+    - alloy
+    - grafana
+    - observability
+    - monitoring
+    - windows
+    - telemetry
+
+dependencies: []

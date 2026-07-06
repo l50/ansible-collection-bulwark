@@ -15,9 +15,10 @@ response, and system hardening.
 graph TD
     Collection[Ansible Collection]
     Collection --> Roles[⚙️ Roles]
-    Roles --> R0[dc_audit_sacl]
-    Roles --> R1[runzero_explorer 🧪]
-    Roles --> R2[sysmon]
+    Roles --> R0[alloy]
+    Roles --> R1[dc_audit_sacl]
+    Roles --> R2[runzero_explorer 🧪]
+    Roles --> R3[sysmon]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -48,11 +49,19 @@ ansible-galaxy collection build --force && \
 
 | Role | Description |
 | ---- | ----------- |
+| [`alloy`](roles/alloy/README.md) | Install and configure Grafana Alloy for Windows hosts |
 | [`dc_audit_sacl`](roles/dc_audit_sacl/README.md) | Configure SACL auditing on Domain Controllers for attack detection |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
 | [`sysmon`](roles/sysmon/README.md) | Install and configure Sysinternals Sysmon on Windows hosts |
 
 <!-- ROLES TABLE END -->
+
+### Alloy
+
+Installs [Grafana Alloy](https://grafana.com/docs/alloy/latest/) on Windows
+hosts and ships event-log data (System, Application, Security, plus optional
+Sysmon / Directory Service / DNS Server channels) to OTLP endpoints for Vector
+and Loki. Windows-only; no molecule test coverage.
 
 ### DC Audit SACL
 
