@@ -16,9 +16,10 @@ graph TD
     Collection[Ansible Collection]
     Collection --> Roles[⚙️ Roles]
     Roles --> R0[aws_cloudwatch_agent]
-    Roles --> R1[dc_audit_sacl]
-    Roles --> R2[runzero_explorer 🧪]
-    Roles --> R3[sysmon]
+    Roles --> R1[aws_ssm_agent]
+    Roles --> R2[dc_audit_sacl]
+    Roles --> R3[runzero_explorer 🧪]
+    Roles --> R4[sysmon]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -50,6 +51,7 @@ ansible-galaxy collection build --force && \
 | Role | Description |
 | ---- | ----------- |
 | [`aws_cloudwatch_agent`](roles/aws_cloudwatch_agent/README.md) | Install and configure AWS CloudWatch Agent |
+| [`aws_ssm_agent`](roles/aws_ssm_agent/README.md) | Install and configure AWS SSM Agent |
 | [`dc_audit_sacl`](roles/dc_audit_sacl/README.md) | Configure SACL auditing on Domain Controllers for attack detection |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
 | [`sysmon`](roles/sysmon/README.md) | Install and configure Sysinternals Sysmon on Windows hosts |
@@ -62,6 +64,13 @@ Installs and configures the [Amazon CloudWatch Agent](https://docs.aws.amazon.co
 on Ubuntu/Debian and Windows hosts. Ships default CPU/disk/memory/netstat/process
 metrics with EC2 instance dimensions; override `aws_cloudwatch_agent_config` to
 tailor collection.
+
+### AWS SSM Agent
+
+Installs and configures the [Amazon SSM Agent](https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-agent.html)
+on Ubuntu/Debian and Windows hosts so instances can be managed via AWS Systems
+Manager (Session Manager, Run Command, Patch Manager). Optionally applies a
+systemd `MemoryMax` cap to protect against SSM OOM eating other workloads.
 
 ### DC Audit SACL
 
