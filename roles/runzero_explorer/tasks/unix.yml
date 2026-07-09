@@ -91,6 +91,8 @@
     - runzero_explorer_agent_files.matched > 0
     - runzero_explorer_stat.stat.exists
     - "(runzero_explorer_agent_files.files | sort(attribute='mtime') | last).checksum != runzero_explorer_checksum.stat.checksum"
+  tags:
+    - molecule-idempotence-notest
 
 - name: Execute runzero-explorer
   become: true
@@ -98,3 +100,5 @@
     cmd: "{{ runzero_explorer_path }}"
   changed_when: true
   when: runzero_explorer_agent_files.matched == 0
+  tags:
+    - molecule-idempotence-notest

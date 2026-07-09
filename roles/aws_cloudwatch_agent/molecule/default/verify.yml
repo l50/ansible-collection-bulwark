@@ -1,0 +1,112 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  vars_files:
+    - ../../defaults/main.yml
+    - ../../vars/main.yml
+  tasks:
+    # Pin the expected values that converge.yml overrode. set_fact takes
+    # precedence over vars_files, so this reliably mirrors what the role
+    # actually rendered in this non-IMDS environment.
+    - name: Set expected test overrides
+      ansible.builtin.set_fact:
+        aws_cloudwatch_agent_expected_region: us-east-1
+
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Assert amazon-cloudwatch-agent package is installed
+      ansible.builtin.assert:
+        that:
+          - "'amazon-cloudwatch-agent' in ansible_facts.packages"
+        fail_msg: "amazon-cloudwatch-agent package is not installed"
+        success_msg: "amazon-cloudwatch-agent package is installed"
+
+    - name: Stat the CloudWatch agent configuration file
+      ansible.builtin.stat:
+        path: "{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.json"
+      register: aws_cloudwatch_agent_config_stat
+      changed_when: false
+
+    - name: Assert config file exists with correct ownership and permissions
+      ansible.builtin.assert:
+        that:
+          - aws_cloudwatch_agent_config_stat.stat.exists
+          - not aws_cloudwatch_agent_config_stat.stat.isdir
+          - aws_cloudwatch_agent_config_stat.stat.mode == '0644'
+          - aws_cloudwatch_agent_config_stat.stat.pw_name == 'root'
+          - aws_cloudwatch_agent_config_stat.stat.gr_name == 'root'
+        fail_msg: "CloudWatch agent config file missing or has incorrect permissions/ownership"
+        success_msg: "CloudWatch agent config file exists with correct permissions/ownership"
+
+    - name: Read the CloudWatch agent configuration file
+      ansible.builtin.slurp:
+        src: "{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.json"
+      register: aws_cloudwatch_agent_config_slurp
+      changed_when: false
+
+    - name: Parse the CloudWatch agent configuration as JSON
+      ansible.builtin.set_fact:
+        aws_cloudwatch_agent_config_parsed: "{{ aws_cloudwatch_agent_config_slurp.content | b64decode | from_json }}"
+
+    - name: Assert config JSON matches the values rendered from role defaults
+      ansible.builtin.assert:
+        that:
+          # Agent section (values from role defaults)
+          - aws_cloudwatch_agent_config_parsed.agent.metrics_collection_interval == aws_cloudwatch_agent_config.agent.metrics_collection_interval
+          - aws_cloudwatch_agent_config_parsed.agent.run_as_user == aws_cloudwatch_agent_config.agent.run_as_user
+          # Region injected via aws_cloudwatch_agent_region (set in converge)
+          - aws_cloudwatch_agent_config_parsed.agent.region == aws_cloudwatch_agent_expected_region
+          # Metrics section: a representative set of collected metrics
+          - "'cpu' in aws_cloudwatch_agent_config_parsed.metrics.metrics_collected"
+          - "'mem' in aws_cloudwatch_agent_config_parsed.metrics.metrics_collected"
+          - "'disk' in aws_cloudwatch_agent_config_parsed.metrics.metrics_collected"
+          - "'diskio' in aws_cloudwatch_agent_config_parsed.metrics.metrics_collected"
+          - "'swap' in aws_cloudwatch_agent_config_parsed.metrics.metrics_collected"
+          - "'netstat' in aws_cloudwatch_agent_config_parsed.metrics.metrics_collected"
+          - "'processes' in aws_cloudwatch_agent_config_parsed.metrics.metrics_collected"
+          - aws_cloudwatch_agent_config_parsed.metrics.metrics_collected.mem.measurement == aws_cloudwatch_agent_config.metrics.metrics_collected.mem.measurement
+          - aws_cloudwatch_agent_config_parsed.metrics.metrics_collected.cpu.totalcpu == aws_cloudwatch_agent_config.metrics.metrics_collected.cpu.totalcpu
+          - aws_cloudwatch_agent_config_parsed.metrics.metrics_collected.cpu.measurement == aws_cloudwatch_agent_config.metrics.metrics_collected.cpu.measurement
+          # append_dimensions was overridden to empty for this non-IMDS
+          # environment, so it must NOT be present in the rendered config.
+          - "'append_dimensions' not in aws_cloudwatch_agent_config_parsed.metrics"
+        fail_msg: "CloudWatch agent config JSON does not match expected values from role defaults"
+        success_msg: "CloudWatch agent config JSON matches expected values from role defaults"
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Assert amazon-cloudwatch-agent systemd unit is present and enabled
+      ansible.builtin.assert:
+        that:
+          - "'amazon-cloudwatch-agent.service' in ansible_facts.services"
+          - ansible_facts.services['amazon-cloudwatch-agent.service'].status == 'enabled'
+        fail_msg: >-
+          amazon-cloudwatch-agent.service is not registered or not enabled
+          (status={{ ansible_facts.services['amazon-cloudwatch-agent.service'].status | default('absent') }})
+        success_msg: "amazon-cloudwatch-agent.service is present and enabled"
+
+    - name: Assert amazon-cloudwatch-agent systemd unit is running
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.services['amazon-cloudwatch-agent.service'].state == 'running'
+        fail_msg: >-
+          amazon-cloudwatch-agent.service is not running
+          (state={{ ansible_facts.services['amazon-cloudwatch-agent.service'].state | default('unknown') }})
+        success_msg: "amazon-cloudwatch-agent.service is running"
+
+    - name: Stat the CloudWatch installation temp directory
+      ansible.builtin.stat:
+        path: "{{ aws_cloudwatch_agent_temp_dir }}"
+      register: aws_cloudwatch_agent_temp_stat
+      changed_when: false
+
+    - name: Assert the installation temp directory was cleaned up
+      ansible.builtin.assert:
+        that:
+          - not aws_cloudwatch_agent_temp_stat.stat.exists
+        fail_msg: "Temporary install directory {{ aws_cloudwatch_agent_temp_dir }} was not cleaned up"
+        success_msg: "Temporary install directory was cleaned up"

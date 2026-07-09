@@ -1,6 +1,12 @@
 ---
 # Linux
-aws_ssm_agent_linux_install_url: "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb"
+# Map Ansible's reported CPU architecture to the Debian arch string AWS uses in
+# its SSM agent download paths (debian_amd64 / debian_arm64).
+aws_ssm_agent_linux_deb_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+aws_ssm_agent_linux_deb_arch: "{{ aws_ssm_agent_linux_deb_arch_map[ansible_architecture] | default('amd64') }}"
+aws_ssm_agent_linux_install_url: "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_{{ aws_ssm_agent_linux_deb_arch }}/amazon-ssm-agent.deb"
 aws_ssm_agent_install_packages:
   - systemd
 

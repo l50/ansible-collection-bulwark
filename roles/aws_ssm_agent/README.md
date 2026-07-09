@@ -24,7 +24,11 @@ Install and configure AWS SSM Agent
 
 | Variable | Type | Value | Description |
 | -------- | ---- | ----- | ----------- |
-| `aws_ssm_agent_linux_install_url` | str | `https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb` | No description |
+| `aws_ssm_agent_linux_deb_arch_map` | dict | `{}` | No description |
+| `aws_ssm_agent_linux_deb_arch_map.x86_64` | str | `amd64` | No description |
+| `aws_ssm_agent_linux_deb_arch_map.aarch64` | str | `arm64` | No description |
+| `aws_ssm_agent_linux_deb_arch` | str | `{{ aws_ssm_agent_linux_deb_arch_map[ansible_architecture] | default('amd64') }}` | No description |
+| `aws_ssm_agent_linux_install_url` | str | `https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_{{ aws_ssm_agent_linux_deb_arch }}/amazon-ssm-agent.deb` | No description |
 | `aws_ssm_agent_install_packages` | list | `[]` | No description |
 | `aws_ssm_agent_install_packages.0` | str | `systemd` | No description |
 | `aws_ssm_agent_windows_install_url` | str | `https://amazon-ssm-{{ aws_ssm_agent_aws_region | default('us-east-1') }}.s3.amazonaws.com/latest/windows_amd64/AmazonSSMAgentSetup.exe` | No description |

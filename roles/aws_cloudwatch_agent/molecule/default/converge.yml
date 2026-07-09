@@ -1,0 +1,21 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  vars:
+    # There is no EC2 instance metadata service (IMDS) inside the Docker test
+    # containers (nor on GitHub CI runners). Configure the role for a non-IMDS
+    # environment so the agent installs, configures, and actually runs:
+    #   - onPremise mode + explicit region: lets the control script fetch and
+    #     validate the config and the agent resolve a region without IMDS.
+    #   - empty append_dimensions: the default ${aws:...} dimensions require the
+    #     ec2tagger processor (and therefore IMDS); omitting them keeps the
+    #     agent process from crashing on startup.
+    # The role defaults preserve normal EC2/IMDS behavior in production.
+    aws_cloudwatch_agent_ctl_mode: onPremise
+    aws_cloudwatch_agent_region: us-east-1
+    aws_cloudwatch_agent_append_dimensions: {}
+  tasks:
+    - name: Include role under test
+      ansible.builtin.include_role:
+        name: l50.bulwark.aws_cloudwatch_agent

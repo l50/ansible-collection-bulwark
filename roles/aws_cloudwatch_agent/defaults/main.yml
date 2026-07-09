@@ -2,6 +2,20 @@
 # General settings
 aws_cloudwatch_agent_temp_dir: "/tmp/cloudwatch_install"
 
+# Mode passed to amazon-cloudwatch-agent-ctl -m. Defaults to "ec2" so that,
+# on EC2 instances, the agent resolves InstanceId/region from the instance
+# metadata service (IMDS) exactly as before. Set to "onPremise" in
+# environments without IMDS (e.g. containers or on-prem hosts) so the ctl
+# command does not attempt IMDS-based region detection and fail.
+aws_cloudwatch_agent_ctl_mode: "ec2"
+
+# AWS region to expose to the agent control script via the AWS_REGION
+# environment variable. Leave empty on EC2 so the agent resolves the region
+# from IMDS as before. In non-IMDS environments (onPremise mode) the ctl
+# command cannot detect a region on its own and fails, so set this to the
+# region the agent should report to.
+aws_cloudwatch_agent_region: ""
+
 # Linux
 aws_cloudwatch_agent_linux_config_dir: "/opt/aws/amazon-cloudwatch-agent/etc"
 aws_cloudwatch_agent_linux_log_dir: "/var/log/amazon/amazon-cloudwatch-agent"
@@ -55,7 +69,13 @@ aws_cloudwatch_agent_config:
           - "running"
           - "blocked"
           - "zombies"
-    append_dimensions:
-      InstanceId: "${aws:InstanceId}"
-      InstanceType: "${aws:InstanceType}"
-      AutoScalingGroupName: "${aws:AutoScalingGroupName}"
+
+# Dimensions appended to every metric. The default ${aws:...} placeholders are
+# resolved from the EC2 instance metadata service (IMDS), which requires the
+# ec2tagger processor and therefore a real EC2 instance. Set this to an empty
+# map ({}) in non-IMDS environments (containers, on-prem) so the agent does not
+# load the ec2tagger processor and crash on startup.
+aws_cloudwatch_agent_append_dimensions:
+  InstanceId: "${aws:InstanceId}"
+  InstanceType: "${aws:InstanceType}"
+  AutoScalingGroupName: "${aws:AutoScalingGroupName}"

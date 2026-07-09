@@ -8,12 +8,22 @@
   become: true
   when: ansible_facts['os_family'] == 'Debian'
 
+- name: Check if CloudWatch agent is already installed via dpkg
+  ansible.builtin.command:
+    cmd: dpkg -s amazon-cloudwatch-agent
+  register: aws_cloudwatch_agent_dpkg_check
+  changed_when: false
+  failed_when: false
+  become: true
+  when: ansible_facts['os_family'] == 'Debian'
+
 - name: Create temporary directory for CloudWatch installation
   ansible.builtin.file:
     path: "{{ aws_cloudwatch_agent_temp_dir }}"
     state: directory
     mode: '0755'
   become: true
+  when: aws_cloudwatch_agent_dpkg_check.rc | default(1) != 0
 
 - name: Download CloudWatch agent (Debian/Ubuntu)
   ansible.builtin.get_url:
@@ -21,14 +31,18 @@
     dest: "{{ aws_cloudwatch_agent_temp_dir }}/amazon-cloudwatch-agent.deb"
     mode: '0644'
   become: true
-  when: ansible_facts['os_family'] == 'Debian'
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - aws_cloudwatch_agent_dpkg_check.rc | default(1) != 0
 
 - name: Install CloudWatch agent (Debian/Ubuntu)
   ansible.builtin.apt:
     deb: "{{ aws_cloudwatch_agent_temp_dir }}/amazon-cloudwatch-agent.deb"
     state: present
   become: true
-  when: ansible_facts['os_family'] == 'Debian'
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - aws_cloudwatch_agent_dpkg_check.rc | default(1) != 0
 
 - name: Ensure CloudWatch Agent config directory exists
   ansible.builtin.file:
@@ -37,23 +51,59 @@
     mode: '0755'
   become: true
 
-- name: Create CloudWatch Agent configuration
+# The amazon-cloudwatch-agent-ctl "fetch-config" action always deletes the
+# source JSON it consumes (it unconditionally removes
+# etc/amazon-cloudwatch-agent.json). Keep the role's rendered config in a
+# separate ".source" file that the control script never touches; this file is
+# the idempotent source of truth that drives whether the config is re-applied.
+- name: Render CloudWatch Agent source configuration
   ansible.builtin.template:
     src: amazon-cloudwatch-agent.json.j2
-    dest: "{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.json"
+    dest: "{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.json.source"
     owner: root
     group: root
     mode: '0644'
   become: true
+  register: aws_cloudwatch_agent_config_result
   notify: Restart cloudwatch_agent (Linux)
 
-- name: Start CloudWatch Agent
-  ansible.builtin.shell: >
-    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c
-    file:{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.json
+- name: Check if CloudWatch Agent config has already been applied
+  ansible.builtin.stat:
+    path: "{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.toml"
+  register: aws_cloudwatch_agent_toml_stat
   become: true
-  args:
-    creates: "/var/run/amazon-cloudwatch-agent.pid"
+  changed_when: false
+
+- name: Apply CloudWatch Agent config and start the agent
+  ansible.builtin.shell: >
+    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl
+    -a fetch-config -m {{ aws_cloudwatch_agent_ctl_mode }} -s -c
+    file:{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.json.source
+  become: true
+  # In onPremise mode there is no IMDS to resolve the region from, so the ctl
+  # command fails unless AWS_REGION is provided. On EC2 the region is left
+  # unset so the agent resolves it from IMDS as before.
+  environment: "{{ {'AWS_REGION': aws_cloudwatch_agent_region} if aws_cloudwatch_agent_region | length > 0 else {} }}"
+  # Only (re-)apply the config when the rendered config changed or was never
+  # applied. The ctl script does not write the legacy /var/run PID file on
+  # current agent versions, so gate on the translated .toml existing plus
+  # source-config changes to keep this task idempotent.
+  changed_when: true
+  when: aws_cloudwatch_agent_config_result is changed or not aws_cloudwatch_agent_toml_stat.stat.exists
+
+# fetch-config removes etc/amazon-cloudwatch-agent.json, so restore the
+# human-readable canonical copy from the ".source" file. This is idempotent:
+# the copy only reports changed when the file is missing or its content
+# differs from the rendered source.
+- name: Ensure canonical CloudWatch Agent configuration is present
+  ansible.builtin.copy:
+    src: "{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.json.source"
+    dest: "{{ aws_cloudwatch_agent_linux_config_dir }}/amazon-cloudwatch-agent.json"
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
 
 - name: Reload systemd
   ansible.builtin.systemd:
@@ -72,3 +122,4 @@
     path: "{{ aws_cloudwatch_agent_temp_dir }}"
     state: absent
   become: true
+  when: aws_cloudwatch_agent_dpkg_check.rc | default(1) != 0

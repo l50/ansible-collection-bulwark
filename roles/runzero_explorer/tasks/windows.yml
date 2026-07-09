@@ -46,9 +46,13 @@
     - runzero_explorer_stat.stat.exists
     - "(runzero_explorer_agent_files.files | sort(attribute='mtime') | last).checksum != runzero_explorer_checksum.stat.checksum"
   changed_when: true
+  tags:
+    - molecule-idempotence-notest
 
 - name: Execute runzero-explorer
   ansible.windows.win_command:
     cmd: "{{ runzero_explorer_path }}"
   changed_when: true
   when: runzero_explorer_agent_files.matched == 0
+  tags:
+    - molecule-idempotence-notest

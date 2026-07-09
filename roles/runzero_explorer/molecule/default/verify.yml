@@ -78,10 +78,15 @@
       register: runzero_explorer_env_file
       when: ansible_os_family in ['Debian', 'RedHat', 'Darwin']
       changed_when: false
-    - name: Assert runzero-explorer environment variables are set
+    - name: Assert runzero-explorer environment variables are set with expected values
       ansible.builtin.assert:
         that:
-          - "'RUNZERO_AGENT_LOG_DEBUG=' in (runzero_explorer_env_file.content | b64decode)"
-          - "'RUNZERO_AGENT_HOST_ID=' in (runzero_explorer_env_file.content | b64decode)"
-        fail_msg: "runzero-explorer environment variables missing from /etc/environment"
+          - "'RUNZERO_AGENT_LOG_DEBUG=' + runzero_explorer_log_debug | string in (runzero_explorer_env_file.content | b64decode)"
+          - >-
+            (runzero_explorer_env_file.content | b64decode)
+            | regex_search('RUNZERO_AGENT_HOST_ID=[0-9a-f]{32}') is not none
+        fail_msg: >-
+          runzero-explorer environment variables missing or malformed in /etc/environment
+          (expected RUNZERO_AGENT_LOG_DEBUG={{ runzero_explorer_log_debug }} and a 32-char hex RUNZERO_AGENT_HOST_ID)
+        success_msg: "runzero-explorer environment variables set with expected values"
       when: ansible_os_family in ['Debian', 'RedHat', 'Darwin']

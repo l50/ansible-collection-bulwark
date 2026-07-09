@@ -1,0 +1,124 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  vars_files:
+    - ../../defaults/main.yml
+    - ../../vars/main.yml
+  vars:
+    aws_ssm_agent_override_path: /etc/systemd/system/amazon-ssm-agent.service.d/oom-protect.conf
+  tasks:
+    # --- Package is actually installed --------------------------------------
+    - name: Gather installed package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Assert amazon-ssm-agent package is installed
+      ansible.builtin.assert:
+        that:
+          - "'amazon-ssm-agent' in ansible_facts.packages"
+        fail_msg: "amazon-ssm-agent package is not installed"
+        success_msg: "amazon-ssm-agent package is installed"
+
+    - name: Query amazon-ssm-agent install status via dpkg
+      ansible.builtin.command:
+        cmd: dpkg-query -W -f='${Status}' amazon-ssm-agent
+      register: aws_ssm_agent_dpkg_status
+      changed_when: false
+
+    - name: Assert dpkg reports amazon-ssm-agent fully installed
+      ansible.builtin.assert:
+        that:
+          - aws_ssm_agent_dpkg_status.stdout == 'install ok installed'
+        fail_msg: >-
+          amazon-ssm-agent is not fully installed (dpkg status: {{ aws_ssm_agent_dpkg_status.stdout }})
+        success_msg: "amazon-ssm-agent is fully installed per dpkg"
+
+    # --- systemd OOM-protection override is present and correct -------------
+    - name: Stat SSM agent OOM-protection override
+      ansible.builtin.stat:
+        path: "{{ aws_ssm_agent_override_path }}"
+      register: aws_ssm_agent_override_stat
+      changed_when: false
+
+    - name: Assert OOM-protection override exists with correct permissions
+      ansible.builtin.assert:
+        that:
+          - aws_ssm_agent_override_stat.stat.exists
+          - not aws_ssm_agent_override_stat.stat.isdir
+          - aws_ssm_agent_override_stat.stat.mode == '0644'
+          - aws_ssm_agent_override_stat.stat.pw_name == 'root'
+        fail_msg: "SSM agent OOM override missing or has incorrect permissions"
+        success_msg: "SSM agent OOM override exists with correct permissions"
+
+    - name: Read SSM agent OOM-protection override
+      ansible.builtin.slurp:
+        src: "{{ aws_ssm_agent_override_path }}"
+      register: aws_ssm_agent_override_file
+      changed_when: false
+
+    - name: Assert OOM override content matches the role's template values
+      ansible.builtin.assert:
+        that:
+          - "'[Service]' in (aws_ssm_agent_override_file.content | b64decode)"
+          - "'OOMScoreAdjust=-900' in (aws_ssm_agent_override_file.content | b64decode)"
+          - >-
+            'MemoryMax=' + aws_ssm_agent_memory_max
+            in (aws_ssm_agent_override_file.content | b64decode)
+        fail_msg: >-
+          SSM agent OOM override content does not match expected values
+          (expected OOMScoreAdjust=-900 and MemoryMax={{ aws_ssm_agent_memory_max }})
+        success_msg: "SSM agent OOM override content matches the role's template values"
+
+    # --- Service enablement and state ---------------------------------------
+    # The agent installs and is enabled, and systemd actively manages it. In a
+    # container with no AWS credentials the agent process starts, exits 0 while
+    # it cannot register, and (Restart=always) systemd immediately restarts it,
+    # so the unit cycles through activating/auto-restart and never settles into
+    # a stable "active (running)" state. We therefore assert the honest, stable
+    # facts: the service is enabled, systemd has not marked it failed, and its
+    # last exit was clean (ExecMainStatus=0) rather than a crash.
+    - name: Query amazon-ssm-agent unit properties
+      ansible.builtin.systemd_service:
+        name: amazon-ssm-agent
+      register: aws_ssm_agent_unit
+      changed_when: false
+
+    - name: Assert amazon-ssm-agent service is enabled
+      ansible.builtin.assert:
+        that:
+          - aws_ssm_agent_unit.status.UnitFileState == 'enabled'
+        fail_msg: >-
+          amazon-ssm-agent is not enabled
+          (UnitFileState={{ aws_ssm_agent_unit.status.UnitFileState }})
+        success_msg: "amazon-ssm-agent service is enabled"
+
+    - name: Assert amazon-ssm-agent is managed by systemd and not failed
+      ansible.builtin.assert:
+        that:
+          - aws_ssm_agent_unit.status.ActiveState in ['active', 'activating']
+          - aws_ssm_agent_unit.status.ExecMainStatus == '0'
+        fail_msg: >-
+          amazon-ssm-agent is not healthy
+          (ActiveState={{ aws_ssm_agent_unit.status.ActiveState }},
+          ExecMainStatus={{ aws_ssm_agent_unit.status.ExecMainStatus }});
+          without AWS credentials it should still be activating/active with a
+          clean last exit, never failed
+        success_msg: >-
+          amazon-ssm-agent is enabled and managed by systemd with a clean last
+          exit (ActiveState={{ aws_ssm_agent_unit.status.ActiveState }})
+
+    # --- Installer temp dir was cleaned up ----------------------------------
+    - name: Stat SSM installer temp dir
+      ansible.builtin.stat:
+        path: "{{ aws_ssm_agent_temp_dir }}"
+      register: aws_ssm_agent_temp_stat
+      changed_when: false
+
+    - name: Assert SSM installer temp dir was cleaned up
+      ansible.builtin.assert:
+        that:
+          - not aws_ssm_agent_temp_stat.stat.exists
+        fail_msg: >-
+          SSM installer temp dir {{ aws_ssm_agent_temp_dir }} was not cleaned up
+        success_msg: "SSM installer temp dir was cleaned up"

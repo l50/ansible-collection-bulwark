@@ -13,7 +13,7 @@ driver:
   name: docker
 
 platforms:
-  - name: ubuntu-runzero-explorer
+  - name: ubuntu-aws-ssm-agent
     image: geerlingguy/docker-ubuntu2404-ansible:latest
     pre_build_image: true
     # Setting the command to this is necessary for systemd containers
@@ -23,7 +23,7 @@ platforms:
     cgroupns_mode: host
     privileged: true
 
-  - name: kali-runzero-explorer
+  - name: kali-aws-ssm-agent
     image: cisagov/docker-kali-ansible:latest
     # Setting the command to this is necessary for systemd containers
     command: ""
