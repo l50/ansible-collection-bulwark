@@ -292,6 +292,10 @@ jobs:
       max-parallel: 3
       matrix:
         include:
+          - name: "Role Test - aws_cloudwatch_agent"
+            path: "roles/aws_cloudwatch_agent"
+          - name: "Role Test - aws_ssm_agent"
+            path: "roles/aws_ssm_agent"
           - name: "Role Test - runzero_explorer"
             path: "roles/runzero_explorer"
           - name: "Playbook Test - runzero_explorer"

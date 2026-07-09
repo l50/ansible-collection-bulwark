@@ -1,6 +1,14 @@
 ---
 # Linux
-aws_cloudwatch_agent_deb_url: "https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb"
+# Map Ansible's reported CPU architecture to the Debian arch string AWS uses in
+# its CloudWatch agent download paths (debian/amd64 / debian/arm64). Without
+# this, the amd64 package is downloaded on arm64 hosts (e.g. EC2 Graviton or
+# Apple Silicon test containers) and dpkg refuses to install it.
+aws_cloudwatch_agent_linux_deb_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+aws_cloudwatch_agent_linux_deb_arch: "{{ aws_cloudwatch_agent_linux_deb_arch_map[ansible_architecture] | default('amd64') }}"
+aws_cloudwatch_agent_deb_url: "https://s3.amazonaws.com/amazoncloudwatch-agent/debian/{{ aws_cloudwatch_agent_linux_deb_arch }}/latest/amazon-cloudwatch-agent.deb"
 
 # Windows
 aws_cloudwatch_agent_win_url: "https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi"

@@ -1,1 +1,13 @@
-{{ aws_cloudwatch_agent_config | to_nice_json }}
+{#- Build the final agent config from the base config, injecting an optional
+    region (needed outside EC2/IMDS) and optional append_dimensions (which
+    require IMDS and are therefore omitted when set to an empty map). -#}
+{%- set _config = aws_cloudwatch_agent_config | combine({}, recursive=True) -%}
+{%- if aws_cloudwatch_agent_region | default('') | length > 0 -%}
+{%-   set _agent = _config.get('agent', {}) | combine({'region': aws_cloudwatch_agent_region}) -%}
+{%-   set _config = _config | combine({'agent': _agent}) -%}
+{%- endif -%}
+{%- if aws_cloudwatch_agent_append_dimensions | default({}) | length > 0 -%}
+{%-   set _metrics = _config.get('metrics', {}) | combine({'append_dimensions': aws_cloudwatch_agent_append_dimensions}) -%}
+{%-   set _config = _config | combine({'metrics': _metrics}) -%}
+{%- endif -%}
+{{ _config | to_nice_json }}

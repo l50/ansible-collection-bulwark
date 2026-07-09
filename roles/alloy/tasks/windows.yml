@@ -46,6 +46,7 @@
   ansible.windows.win_command: '"{{ alloy_windows_temp_dir }}\alloy-installer-windows-amd64.exe" /S'
   when: alloy_needs_install
   register: alloy_install_result
+  changed_when: true
 
 - name: Wait for Alloy service to be created
   ansible.windows.win_service:

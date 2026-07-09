@@ -5,6 +5,7 @@ alloy_version: "1.17.1"
 # Alloy configuration
 alloy_env: "dev"
 alloy_deployment_name: ""
+alloy_server_id: ""
 alloy_instance_id: ""
 alloy_loki_endpoint: ""
 

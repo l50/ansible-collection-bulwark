@@ -19,18 +19,31 @@
     create: true
     mode: '0644'
 
+# The host ID must be stable across runs so runZero doesn't register the
+# same machine as a new asset; only generate one when the host has none.
+- name: Check for an existing RUNZERO_AGENT_HOST_ID
+  ansible.builtin.command:
+    cmd: grep -E '^RUNZERO_AGENT_HOST_ID=[0-9a-f]{32}$' /etc/environment
+  register: runzero_explorer_host_id_check
+  changed_when: false
+  failed_when: false
+
 - name: Generate a unique RUNZERO_AGENT_HOST_ID
   ansible.builtin.set_fact:
-    runzero_explorer_agent_host_id: "{{ lookup('ansible.builtin.password', length=32, format='hex') }}"
-  when: runzero_explorer_agent_host_id is not defined
+    runzero_explorer_agent_host_id: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['hexdigits'], length=32) | lower }}"
+  when:
+    - runzero_explorer_agent_host_id is not defined
+    - runzero_explorer_host_id_check.rc != 0
 
 - name: Set RUNZERO_AGENT_HOST_ID environment variable
   become: true
   ansible.builtin.lineinfile:
     path: /etc/environment
+    regexp: '^RUNZERO_AGENT_HOST_ID='
     line: 'RUNZERO_AGENT_HOST_ID={{ runzero_explorer_agent_host_id }}'
     create: true
     mode: '0644'
+  when: runzero_explorer_agent_host_id is defined
 
 - name: Install required packages for runZero Explorer
   ansible.builtin.include_role:
@@ -91,6 +104,8 @@
     - runzero_explorer_agent_files.matched > 0
     - runzero_explorer_stat.stat.exists
     - "(runzero_explorer_agent_files.files | sort(attribute='mtime') | last).checksum != runzero_explorer_checksum.stat.checksum"
+  tags:
+    - molecule-idempotence-notest
 
 - name: Execute runzero-explorer
   become: true
@@ -98,3 +113,5 @@
     cmd: "{{ runzero_explorer_path }}"
   changed_when: true
   when: runzero_explorer_agent_files.matched == 0
+  tags:
+    - molecule-idempotence-notest

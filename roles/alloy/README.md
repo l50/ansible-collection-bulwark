@@ -18,6 +18,7 @@ Install and configure Grafana Alloy for Windows hosts
 | `alloy_version` | str | <code>1.17.1</code> | No description |
 | `alloy_env` | str | <code>dev</code> | No description |
 | `alloy_deployment_name` | str | <code></code> | No description |
+| `alloy_server_id` | str | <code></code> | No description |
 | `alloy_instance_id` | str | <code></code> | No description |
 | `alloy_loki_endpoint` | str | <code></code> | No description |
 | `alloy_otlp_vector_endpoint` | str | <code></code> | No description |

@@ -1,3 +1,4 @@
 ---
 - name: Reload sysmon config
   ansible.windows.win_command: '"{{ sysmon_binary_path }}" -c "{{ sysmon_config_path }}"'
+  changed_when: true
