@@ -67,8 +67,9 @@ Install the runZero explorer
 - **Set runzero-explorer download URL for Unix-like systems** (ansible.builtin.set_fact) - Conditional
 - **Set runzero-explorer download URL for Darwin systems** (ansible.builtin.set_fact) - Conditional
 - **Set RUNZERO_AGENT_LOG_DEBUG environment variable** (ansible.builtin.lineinfile)
+- **Check for an existing RUNZERO_AGENT_HOST_ID** (ansible.builtin.command)
 - **Generate a unique RUNZERO_AGENT_HOST_ID** (ansible.builtin.set_fact) - Conditional
-- **Set RUNZERO_AGENT_HOST_ID environment variable** (ansible.builtin.lineinfile)
+- **Set RUNZERO_AGENT_HOST_ID environment variable** (ansible.builtin.lineinfile) - Conditional
 - **Install required packages for runZero Explorer** (ansible.builtin.include_role)
 - **Create runZero Explorer directory** (ansible.builtin.file)
 - **Check if runzero-explorer already exists** (ansible.builtin.stat)
