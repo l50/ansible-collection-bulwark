@@ -1,8 +1,38 @@
 ==============================================
-Bulwark Ansible Collection 1.0.1 Release Notes
+Bulwark Ansible Collection 1.1.0 Release Notes
 ==============================================
 
 .. contents:: Topics
+
+v1.1.0
+======
+
+Release Summary
+---------------
+
+Feature release introducing five new Ansible roles for cloud infrastructure management, Windows host instrumentation, and security monitoring, plus reliability and security improvements to the runzero_explorer role.
+
+Added
+-----
+
+- aws_cloudwatch_agent - New Ansible role for deploying and configuring AWS CloudWatch Agent across supported platforms (#524).
+- aws_cloudwatch_agent, aws_ssm_agent - Added Molecule test suites for integration testing (#529).
+- aws_ssm_agent - New Ansible role for cross-platform AWS Systems Manager Agent management (#525).
+- dc_audit_sacl - New Ansible role for configuring Domain Controller audit SACL policies to support attack detection (#523).
+- grafana_alloy - New Ansible role for Grafana Alloy deployment targeting Windows event log collection and forwarding (#526).
+- runzero_explorer - Added resilient download configuration with retry logic for improved reliability in network-constrained environments (#509).
+- sysmon - New Ansible role for Windows host instrumentation using Sysinternals Sysmon (#522).
+
+Changed
+-------
+
+- Updated Ansible collection dependencies (amazon.aws 11.4.0, ansible.windows 3.6.1, community.general 13.x) and ansible-core to 2.21.1.
+- Updated Python, Go, and Task tooling versions across CI workflows.
+
+Fixed
+-----
+
+- README - Fixed roles table markers so the pre-commit hook passes validation (#497).
 
 v1.0.1
 ======
