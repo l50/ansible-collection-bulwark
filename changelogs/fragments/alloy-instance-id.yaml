@@ -1,0 +1,10 @@
+---
+fixed:
+  - Default `alloy_instance_id` to the `ansible_ec2_instance_id` fact instead of
+    an empty string, so Alloy stream labels carry a real instance ID when the
+    caller has gathered EC2 metadata. Previously every stream shipped
+    `instance_id=""` unless the ID was passed explicitly, and a selector such as
+    `{instance_id="i-0123456789abcdef0"}` returned no results — which reads as
+    "this host is quiet" rather than "this selector matched nothing." Callers
+    that set the variable explicitly are unaffected, since role defaults are the
+    lowest-precedence source.
