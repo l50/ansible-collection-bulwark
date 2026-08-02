@@ -6,7 +6,7 @@ alloy_version: "1.17.1"
 alloy_env: "dev"
 alloy_deployment_name: ""
 alloy_server_id: ""
-alloy_instance_id: ""
+alloy_instance_id: "{{ ansible_ec2_instance_id | default('') }}"
 alloy_loki_endpoint: ""
 
 # OTLP HTTP endpoints for the log-forwarding pipeline. The role sends parsed
