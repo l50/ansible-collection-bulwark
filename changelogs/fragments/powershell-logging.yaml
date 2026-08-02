@@ -1,0 +1,8 @@
+---
+added:
+  - Added role `powershell_logging` to enable PowerShell script block logging
+    (event 4104) and module logging (event 4103) via machine policy, and to
+    raise the Microsoft-Windows-PowerShell/Operational channel size so those
+    events survive long enough to be shipped. Subscribing a log shipper to
+    that channel without these policy settings yields only engine lifecycle
+    events, never the script content needed for detection.

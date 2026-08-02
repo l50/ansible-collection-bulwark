@@ -1,0 +1,37 @@
+---
+# PowerShell Logging Configuration
+# Turns on the policy settings that make Microsoft-Windows-PowerShell/Operational
+# useful to a detection pipeline. Subscribing to that channel without these
+# settings yields only engine lifecycle events (40961/40962), never script bodies.
+
+# Script block logging (event 4104) records the deobfuscated script text as it
+# is compiled. This is the single setting that makes PowerShell telemetry worth
+# collecting; leave it on unless you have a specific reason not to.
+powershell_logging_enable_script_block: true
+
+# Invocation logging (events 4105/4106) adds a start and stop record for every
+# script block executed. Extremely high volume. Only enable when you need
+# execution timing rather than content.
+powershell_logging_enable_script_block_invocation: false
+
+# Module/pipeline logging (event 4103) records pipeline execution details for
+# the modules named below. "*" covers every module.
+powershell_logging_enable_module_logging: true
+powershell_logging_module_names:
+  - "*"
+
+# Transcription writes full session transcripts to disk instead of the event
+# log, so it needs a separate collection path. Off by default.
+powershell_logging_enable_transcription: false
+powershell_logging_transcript_output_directory: 'C:\ProgramData\PSTranscripts'
+powershell_logging_transcription_invocation_header: true
+
+# The Operational channel defaults to 15 MB. With script block logging enabled
+# a noisy host can wrap that in minutes and lose events between shipper polls.
+# Set to 0 to leave the channel size alone.
+powershell_logging_operational_max_size_mb: 256
+
+# Policy hive the settings are written to. Values here take precedence over
+# per-user settings and match what Group Policy would apply.
+powershell_logging_policy_key: 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell'
+powershell_logging_operational_channel: "Microsoft-Windows-PowerShell/Operational"

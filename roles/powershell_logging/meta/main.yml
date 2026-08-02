@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  role_name: powershell_logging
+  namespace: l50
+  author: Jayson Grace
+  description: Enable PowerShell script block and module logging for attack detection
+  company: l50
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Windows
+      versions:
+        - "2019"
+        - "2022"
+  galaxy_tags:
+    - windows
+    - security
+    - logging
+    - auditing
+    - powershell
+
+dependencies: []
