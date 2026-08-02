@@ -19,8 +19,9 @@ graph TD
     Roles --> R1[aws_cloudwatch_agent 🧪]
     Roles --> R2[aws_ssm_agent 🧪]
     Roles --> R3[dc_audit_sacl]
-    Roles --> R4[runzero_explorer 🧪]
-    Roles --> R5[sysmon]
+    Roles --> R4[powershell_logging]
+    Roles --> R5[runzero_explorer 🧪]
+    Roles --> R6[sysmon]
     Collection --> Playbooks[📚 Playbooks]
     Playbooks --> PB0[runzero_explorer 🧪]
 ```
@@ -55,6 +56,7 @@ ansible-galaxy collection build --force && \
 | [`aws_cloudwatch_agent`](roles/aws_cloudwatch_agent/README.md) | Install and configure AWS CloudWatch Agent |
 | [`aws_ssm_agent`](roles/aws_ssm_agent/README.md) | Install and configure AWS SSM Agent |
 | [`dc_audit_sacl`](roles/dc_audit_sacl/README.md) | Configure SACL auditing on Domain Controllers for attack detection |
+| [`powershell_logging`](roles/powershell_logging/README.md) | Enable PowerShell script block and module logging for attack detection |
 | [`runzero_explorer`](roles/runzero_explorer/README.md) | Install the runZero explorer |
 | [`sysmon`](roles/sysmon/README.md) | Install and configure Sysinternals Sysmon on Windows hosts |
 

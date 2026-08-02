@@ -1,0 +1,109 @@
+---
+# PowerShell Logging Configuration
+# Writes the policy values that populate Microsoft-Windows-PowerShell/Operational
+# with script content (4104) and pipeline detail (4103).
+
+- name: Configure script block logging (event 4104)
+  ansible.windows.win_regedit:
+    path: '{{ powershell_logging_policy_key }}\ScriptBlockLogging'
+    name: EnableScriptBlockLogging
+    data: "{{ 1 if powershell_logging_enable_script_block else 0 }}"
+    type: dword
+    state: present
+
+- name: Configure script block invocation logging (events 4105/4106)
+  ansible.windows.win_regedit:
+    path: '{{ powershell_logging_policy_key }}\ScriptBlockLogging'
+    name: EnableScriptBlockInvocationLogging
+    data: "{{ 1 if powershell_logging_enable_script_block_invocation else 0 }}"
+    type: dword
+    state: present
+
+- name: Configure module logging (event 4103)
+  ansible.windows.win_regedit:
+    path: '{{ powershell_logging_policy_key }}\ModuleLogging'
+    name: EnableModuleLogging
+    data: "{{ 1 if powershell_logging_enable_module_logging else 0 }}"
+    type: dword
+    state: present
+
+# EnableModuleLogging alone logs nothing; the ModuleNames subkey decides which
+# modules are in scope, as name and data pairs of the same string.
+- name: Register modules for pipeline logging
+  ansible.windows.win_regedit:
+    path: '{{ powershell_logging_policy_key }}\ModuleLogging\ModuleNames'
+    name: "{{ item }}"
+    data: "{{ item }}"
+    type: string
+    state: present
+  loop: "{{ powershell_logging_module_names }}"
+  when: powershell_logging_enable_module_logging | bool
+
+- name: Configure transcription
+  when: powershell_logging_enable_transcription | bool
+  block:
+    - name: Ensure transcript output directory exists
+      ansible.windows.win_file:
+        path: "{{ powershell_logging_transcript_output_directory }}"
+        state: directory
+
+    - name: Enable transcription
+      ansible.windows.win_regedit:
+        path: '{{ powershell_logging_policy_key }}\Transcription'
+        name: EnableTranscripting
+        data: 1
+        type: dword
+        state: present
+
+    - name: Set transcript output directory
+      ansible.windows.win_regedit:
+        path: '{{ powershell_logging_policy_key }}\Transcription'
+        name: OutputDirectory
+        data: "{{ powershell_logging_transcript_output_directory }}"
+        type: string
+        state: present
+
+    - name: Configure transcript invocation header
+      ansible.windows.win_regedit:
+        path: '{{ powershell_logging_policy_key }}\Transcription'
+        name: EnableInvocationHeader
+        data: "{{ 1 if powershell_logging_transcription_invocation_header else 0 }}"
+        type: dword
+        state: present
+
+- name: Size the PowerShell Operational channel
+  when: powershell_logging_operational_max_size_mb | int > 0
+  block:
+    - name: Read current Operational channel size
+      ansible.windows.win_shell: |
+        $log = wevtutil gl "{{ powershell_logging_operational_channel }}"
+        $match = $log | Select-String -Pattern '^\s*maxSize:\s*(\d+)'
+        if ($match) { $match.Matches[0].Groups[1].Value } else { "" }
+      register: powershell_logging_channel_size
+      changed_when: false
+
+    - name: Set Operational channel size
+      ansible.windows.win_shell: >-
+        wevtutil sl "{{ powershell_logging_operational_channel }}"
+        /ms:{{ powershell_logging_operational_max_size_mb | int * 1048576 }}
+      when: >-
+        (powershell_logging_channel_size.stdout | trim | int)
+        != (powershell_logging_operational_max_size_mb | int * 1048576)
+      changed_when: true
+
+- name: Verify PowerShell logging policy
+  ansible.windows.win_shell: |
+    $key = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell"
+    $sbl = (Get-ItemProperty "$key\ScriptBlockLogging" -ErrorAction SilentlyContinue).EnableScriptBlockLogging
+    $mod = (Get-ItemProperty "$key\ModuleLogging" -ErrorAction SilentlyContinue).EnableModuleLogging
+    $size = (wevtutil gl "{{ powershell_logging_operational_channel }}" |
+      Select-String -Pattern '^\s*maxSize:\s*(\d+)').Matches[0].Groups[1].Value
+    Write-Host "EnableScriptBlockLogging (4104): $(if ($sbl -eq 1) { 'enabled' } else { 'DISABLED' })"
+    Write-Host "EnableModuleLogging (4103):      $(if ($mod -eq 1) { 'enabled' } else { 'DISABLED' })"
+    Write-Host "Operational channel maxSize:     $([math]::Round($size / 1MB)) MB"
+  register: powershell_logging_verify
+  changed_when: false
+
+- name: Display verification result
+  ansible.builtin.debug:
+    msg: "{{ powershell_logging_verify.stdout_lines }}"
