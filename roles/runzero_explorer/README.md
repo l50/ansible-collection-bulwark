@@ -15,9 +15,9 @@ Install the runZero explorer
 
 | Variable | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `runzero_explorer_log_debug` | str | <code>false</code> | No description |
-| `runzero_explorer_systemd_enabled` | str | <code>false</code> | No description |
-| `runzero_explorer_version_id` | str | <code>1a430dd4</code> | No description |
+| `runzero_explorer_log_debug` | str | <code>false</code> | Enable debug logging for the runZero Explorer agent. |
+| `runzero_explorer_systemd_enabled` | str | <code>false</code> | Enable and start the runZero Explorer systemd service. |
+| `runzero_explorer_version_id` | str | <code>1a430dd4</code> | Version identifier used for the runZero Explorer download. |
 | `runzero_explorer_debug_download` | bool | <code>False</code> | No description |
 | `runzero_explorer_download_retries` | int | <code>5</code> | No description |
 | `runzero_explorer_download_delay` | int | <code>10</code> | No description |
